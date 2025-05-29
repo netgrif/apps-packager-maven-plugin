@@ -2,9 +2,8 @@
 
 [![Java](https://img.shields.io/badge/Java-11-red)](https://openjdk.java.net/projects/jdk/11/)
 [![Petriflow 1.0.1](https://img.shields.io/badge/Petriflow-1.0.1-0aa8ff)](https://petriflow.com)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/netgrif/apps-packager-maven-plugin?sort=semver\&display_name=tag)](https://github.com/netgrif/apps-packager-maven-plugin/releases)
-[![build](https://github.com/netgrif/apps-packager-maven-plugin/actions/workflows/master-build.yml/badge.svg)](https://github.com/netgrif/apps-packager-maven-plugin/actions/workflows/master-build.yml)
-
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/netgrif/apps-packager-maven-plugin?sort=semver&display_name=tag)](https://github.com/netgrif/apps-packager-maven-plugin/releases)
+[![Publish package to Maven](https://github.com/netgrif/apps-packager-maven-plugin/actions/workflows/release-build.yaml/badge.svg)](https://github.com/netgrif/apps-packager-maven-plugin/actions/workflows/release-build.yaml)
 ---
 
 A Maven plugin for packaging [Petriflow](https://github.com/netgrif/petriflow) application XML files into distributable ZIP archives, including automatic manifest generation and flexible configuration.
