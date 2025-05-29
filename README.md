@@ -48,7 +48,7 @@ mvn clean package
 Or run manually:
 
 ```shell
-mvn com.netgrif.maven.plugin:petriflow-package-maven-plugin:package-petriflow
+mvn com.netgrif:apps-packager-maven-plugin:package-petriflow
 ```
 
 ---
