@@ -15,9 +15,9 @@ kind, help make a community where new faces feel welcome and old hands feel appr
 
 If you've found a bug, let us know about it.
 
-* Search the [Issues](https://github.com/netgrif/nae-modul-maven-plugin/issues) to check we're not already tracking it.
+* Search the [Issues](https://github.com/netgrif/apps-packager-maven-plugin/issues) to check we're not already tracking it.
 * If you can't find an open issue that describes your
-  problem, [open a new one](https://github.com/netgrif/nae-modul-maven-plugin/issues/new).
+  problem, [open a new one](https://github.com/netgrif/apps-packager-maven-plugin/issues/new).
     * Include a **title and clear description**
     * Describe:
         * What you did (ideally with a code sample or executed steps)
@@ -28,9 +28,9 @@ If you've found a bug, let us know about it.
 ### Contributing Features
 
 If you've got a great idea for the plugin feature, start by checking
-[issues](https://github.com/netgrif/nae-modul-maven-plugin/labels/improvement) to check we're not already tracking it, or
+[issues](https://github.com/netgrif/apps-packager-maven-plugin/labels/improvement) to check we're not already tracking it, or
 that your idea hasn't already been rejected.
 
-If not, start by [opening an issue](https://github.com/netgrif/nae-modul-maven-plugin/issues/new) that describes your idea.
+If not, start by [opening an issue](https://github.com/netgrif/apps-packager-maven-plugin/issues/new) that describes your idea.
 Do not be afraid of rejection, every excellent idea has to start somewhere. Give it a well described solution to the
 problem which your proposition is trying to solve.

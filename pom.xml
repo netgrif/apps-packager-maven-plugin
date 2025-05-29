@@ -36,14 +36,14 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/netgrif/nae-modul-maven-plugin.git</connection>
-        <developerConnection>scm:git:ssh:/git@github.com/netgrif/nae-modul-maven-plugin.git</developerConnection>
-        <url>https://github.com/netgrif/nae-modul-maven-plugin</url>
+        <connection>scm:git:git://github.com/netgrif/apps-packager-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh:/git@github.com/netgrif/apps-packager-maven-plugin.git</developerConnection>
+        <url>https://github.com/netgrif/apps-packager-maven-plugin</url>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/netgrif/nae-modul-maven-plugin/issues</url>
+        <url>https://github.com/netgrif/apps-packager-maven-plugin/issues</url>
     </issueManagement>
 
     <reporting>
@@ -151,19 +151,9 @@
             <version>4.8.179</version>
         </dependency>
         <dependency>
-            <groupId>org.twdata.maven</groupId>
-            <artifactId>mojo-executor</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>2.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-            <version>5.2.3</version>
         </dependency>
 
         <dependency>
@@ -309,7 +299,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/netgrif/nae-modul-maven-plugin</url>
+                    <url>https://maven.pkg.github.com/netgrif/apps-packager-maven-plugin</url>
                 </repository>
             </distributionManagement>
         </profile>

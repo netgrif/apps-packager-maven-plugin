@@ -11,9 +11,9 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 
 
 /**
@@ -21,9 +21,9 @@ import java.util.zip.ZipOutputStream;
  * applications into ZIP archives. It processes the input directories, creates
  * a manifest file, excludes files based on patterns, and generates the resulting
  * ZIP file with the specified attributes.
- *
+ * <p>
  * This class extends the AbstractMojo class to provide Maven plugin functionality.
- *
+ * <p>
  * Fields:
  * - project: The Maven project object representing the current project.
  * - inputDirectories: A list of directories to be processed for packaging.
@@ -37,30 +37,30 @@ import java.util.zip.ZipOutputStream;
  * - appAuthor: The author of the application.
  * - exclude: A list of patterns to exclude files from packaging.
  * - zipPrefix: A prefix to be added to the generated ZIP file names.
- *
+ * <p>
  * Methods:
  * - execute(): Main entry point for the Mojo, responsible for executing the packaging logic.
  * - makeFlatName(Path appDir, Path file): Generates a flat file name from a given path,
- *   replacing directory separators with underscores.
+ * replacing directory separators with underscores.
  * - makeFlatNetName(Path appDir, Path file): Generates a flat process name by stripping
- *   XML extensions from file names.
+ * XML extensions from file names.
  * - zipAppCustomFiles(Path appDir, List<Path> processFiles, File outputZip, String appId,
- *   String appName, String appDescription, String appVersion, String appAuthor,
- *   List<Pattern> excludePatterns): Packages selected files from the process directory
- *   into a ZIP file.
+ * String appName, String appDescription, String appVersion, String appAuthor,
+ * List<Pattern> excludePatterns): Packages selected files from the process directory
+ * into a ZIP file.
  * - zipApp(Path appDir, File outputZip, String appId, String appName, String appDescription,
- *   String appVersion, String appAuthor, List<Pattern> excludePatterns): Packages the
- *   application folder, including the generated manifest and its processes, into a ZIP file.
+ * String appVersion, String appAuthor, List<Pattern> excludePatterns): Packages the
+ * application folder, including the generated manifest and its processes, into a ZIP file.
  * - isExcluded(String netName, List<Pattern> patterns): Checks if a given process name
- *   matches any of the exclusion patterns.
+ * matches any of the exclusion patterns.
  * - getExclusionPatterns(): Retrieves the list of compiled patterns used for file exclusions.
  * - generateManifestXml(List<String> processNames, String appId, String appName,
- *   String description, String version, String author): Generates the XML content for the
- *   manifest file.
+ * String description, String version, String author): Generates the XML content for the
+ * manifest file.
  * - getOrDefault(String userInput, String defaultValue): Returns the user-provided value if
- *   it is not null or empty, otherwise returns the default value.
+ * it is not null or empty, otherwise returns the default value.
  * - getDefaultAuthor(): Attempts to determine a default author based on the Maven developers
- *   configuration, falling back to "unknown" if unavailable.
+ * configuration, falling back to "unknown" if unavailable.
  * - escapeXml(String input): Escapes special XML characters in the provided string.
  */
 @Mojo(name = "package-petriflow", defaultPhase = LifecyclePhase.PACKAGE)
@@ -243,30 +243,34 @@ public class PetriflowPackageMojo extends AbstractMojo {
                                 );
                             }
                         }
-                        List<Path> rootXmls = Files.list(inDir.toPath())
-                                .filter(p -> !Files.isDirectory(p))
-                                .filter(p -> p.toString().endsWith(".xml"))
-                                .filter(p -> !p.getFileName().toString().equalsIgnoreCase("manifest.xml"))
-                                .toList();
+                        try (Stream<Path> pathStream = Files.list(inDir.toPath())) {
+                            List<Path> rootXmls = pathStream
+                                    .filter(p -> !Files.isDirectory(p))
+                                    .filter(p -> p.toString().endsWith(".xml"))
+                                    .filter(p -> !p.getFileName().toString().equalsIgnoreCase("manifest.xml"))
+                                    .toList();
 
-                        if (!rootXmls.isEmpty()) {
-                            getLog().info("--------------------------------------------------------------------");
-                            getLog().info("Processing root directory XML files as extra application: root");
-                            String baseName = "root";
-                            zipAppCustomFiles(
-                                    inDir.toPath(),
-                                    rootXmls,
-                                    new File(outputDirectory, baseName + ".zip"),
-                                    getOrDefault(appId, baseName),
-                                    getOrDefault(appName, baseName),
-                                    getOrDefault(appDescription, "Petriflow application " + baseName),
-                                    getOrDefault(appVersion, project.getVersion()),
-                                    getOrDefault(appAuthor, getDefaultAuthor()),
-                                    getExclusionPatterns()
-                            );
-                        }
-                        if (!foundAny && rootXmls.isEmpty()) {
-                            getLog().warn("No subdirectories or root XMLs found in " + inDir.getAbsolutePath());
+                            if (!rootXmls.isEmpty()) {
+                                getLog().info("--------------------------------------------------------------------");
+                                getLog().info("Processing root directory XML files as extra application: root");
+                                String baseName = "root";
+                                zipAppCustomFiles(
+                                        inDir.toPath(),
+                                        rootXmls,
+                                        new File(outputDirectory, baseName + ".zip"),
+                                        getOrDefault(appId, baseName),
+                                        getOrDefault(appName, baseName),
+                                        getOrDefault(appDescription, "Petriflow application " + baseName),
+                                        getOrDefault(appVersion, project.getVersion()),
+                                        getOrDefault(appAuthor, getDefaultAuthor()),
+                                        getExclusionPatterns()
+                                );
+                            }
+                            if (!foundAny && rootXmls.isEmpty()) {
+                                getLog().warn("No subdirectories or root XMLs found in " + inDir.getAbsolutePath());
+                            }
+                        } catch (IOException e) {
+                            throw new MojoExecutionException("Error while zipping petriflow apps", e);
                         }
                     }
                 } else {
@@ -357,7 +361,7 @@ public class PetriflowPackageMojo extends AbstractMojo {
         getLog().info("ZIP created: " + outputZip.getAbsolutePath());
     }
 
-    private void zipApp(Path appDir, File outputZip, String appId, String appName, String appDescription, String appVersion, String appAuthor, List<Pattern> excludePatterns) throws IOException {
+    private void zipApp(Path appDir, File outputZip, String appId, String appName, String appDescription, String appVersion, String appAuthor, List<Pattern> excludePatterns) throws MojoExecutionException {
         getLog().info("Zipping application:");
         getLog().info(" - Source directory: " + appDir.toAbsolutePath());
         getLog().info(" - Output zip: " + outputZip.getAbsolutePath());
@@ -368,51 +372,55 @@ public class PetriflowPackageMojo extends AbstractMojo {
         getLog().info("      appVersion: " + appVersion);
         getLog().info("      appAuthor: " + appAuthor);
 
-        List<Path> processFiles = Files.walk(appDir)
-                .filter(p -> !Files.isDirectory(p))
-                .filter(p -> p.toString().endsWith(".xml"))
-                .filter(p -> !p.getFileName().toString().equalsIgnoreCase("manifest.xml"))
-                .toList();
+        try(Stream<Path> processFilesPathsStream = Files.walk(appDir)) {
+            List<Path> processFiles = processFilesPathsStream
+                    .filter(p -> !Files.isDirectory(p))
+                    .filter(p -> p.toString().endsWith(".xml"))
+                    .filter(p -> !p.getFileName().toString().equalsIgnoreCase("manifest.xml"))
+                    .toList();
 
-        List<String> processNames = new ArrayList<>();
-        List<Path> includedProcessFiles = new ArrayList<>();
-        for (Path pf : processFiles) {
-            String netName = pf.getFileName().toString().replaceFirst("\\.xml$", "");
-            if (!isExcluded(netName, excludePatterns)) {
-                includedProcessFiles.add(pf);
-                processNames.add(makeFlatNetName(appDir, pf));
-            } else {
-                getLog().info("Excluding process by pattern: " + netName);
+            List<String> processNames = new ArrayList<>();
+            List<Path> includedProcessFiles = new ArrayList<>();
+            for (Path pf : processFiles) {
+                String netName = pf.getFileName().toString().replaceFirst("\\.xml$", "");
+                if (!isExcluded(netName, excludePatterns)) {
+                    includedProcessFiles.add(pf);
+                    processNames.add(makeFlatNetName(appDir, pf));
+                } else {
+                    getLog().info("Excluding process by pattern: " + netName);
+                }
             }
-        }
 
-        getLog().info("Found " + processNames.size() + " INCLUDED process XML files:");
-        for (String process : processNames) {
-            getLog().info("   - " + process);
-        }
+            getLog().info("Found " + processNames.size() + " INCLUDED process XML files:");
+            for (String process : processNames) {
+                getLog().info("   - " + process);
+            }
 
-        getLog().info("Generating manifest.xml ...");
-        String manifestXml = generateManifestXml(processNames, appId, appName, appDescription, appVersion, appAuthor);
-        getLog().debug("Manifest XML:\n" + manifestXml);
+            getLog().info("Generating manifest.xml ...");
+            String manifestXml = generateManifestXml(processNames, appId, appName, appDescription, appVersion, appAuthor);
+            getLog().debug("Manifest XML:\n" + manifestXml);
 
-        getLog().info("Creating ZIP...");
-        try (FileOutputStream fos = new FileOutputStream(outputZip);
-             ZipOutputStream zos = new ZipOutputStream(fos)) {
+            getLog().info("Creating ZIP...");
+            try (FileOutputStream fos = new FileOutputStream(outputZip);
+                 ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-            zos.putNextEntry(new ZipEntry("manifest.xml"));
-            zos.write(manifestXml.getBytes(StandardCharsets.UTF_8));
-            zos.closeEntry();
-            getLog().info("Added: manifest.xml");
-
-            for (Path processFile : includedProcessFiles) {
-                String entryName = "processes/" + makeFlatName(appDir, processFile);
-                zos.putNextEntry(new ZipEntry(entryName));
-                Files.copy(processFile, zos);
+                zos.putNextEntry(new ZipEntry("manifest.xml"));
+                zos.write(manifestXml.getBytes(StandardCharsets.UTF_8));
                 zos.closeEntry();
-                getLog().info("Added: " + entryName);
+                getLog().info("Added: manifest.xml");
+
+                for (Path processFile : includedProcessFiles) {
+                    String entryName = "processes/" + makeFlatName(appDir, processFile);
+                    zos.putNextEntry(new ZipEntry(entryName));
+                    Files.copy(processFile, zos);
+                    zos.closeEntry();
+                    getLog().info("Added: " + entryName);
+                }
             }
+            getLog().info("ZIP created: " + outputZip.getAbsolutePath());
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error while zipping petriflow apps", e);
         }
-        getLog().info("ZIP created: " + outputZip.getAbsolutePath());
     }
 
     private boolean isExcluded(String netName, List<Pattern> patterns) {
